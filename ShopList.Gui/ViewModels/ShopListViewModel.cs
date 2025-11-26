@@ -10,7 +10,9 @@ namespace ShopList.Gui.ViewModels
         [ObservableProperty] 
         private string _nombreDelArticulo = string.Empty;
         [ObservableProperty]
-        private int _cantidadAComprar = 1;        
+        private int _cantidadAComprar = 1;
+        [ObservableProperty]
+        private Item? _productoSeleccionado = null;
 
         public ObservableCollection<Item> Items { get; }
 
@@ -18,6 +20,14 @@ namespace ShopList.Gui.ViewModels
         {
             Items = new ObservableCollection<Item>();
             CargarDatos();
+            if (Items.Count > 0)
+            {
+                ProductoSeleccionado = Items.First();
+            }
+            else
+            {
+                ProductoSeleccionado = null;
+            }
         }
 
         [RelayCommand]
@@ -37,6 +47,7 @@ namespace ShopList.Gui.ViewModels
                 Comprado = false,
             };
             Items.Add(item);
+            ProductoSeleccionado = item;
             NombreDelArticulo = string.Empty;
             CantidadAComprar = 1;
         }
@@ -44,7 +55,29 @@ namespace ShopList.Gui.ViewModels
         [RelayCommand]
         public void EliminarShopListItem()
         {
+            if (ProductoSeleccionado != null)
+            {
+                var índice = Items.IndexOf(ProductoSeleccionado);
+                Item? nuevoSeleccionado;
+                if (Items.Count > 1)
+                {
+                    if (índice < Items.Count - 1)
+                    {
+                        nuevoSeleccionado = Items[índice + 1];
 
+                    }
+                    else
+                    {
+                        nuevoSeleccionado = Items[índice - 1];
+                    }
+                }
+                else
+                {
+                    nuevoSeleccionado = null;
+                }
+                Items.Remove(ProductoSeleccionado);
+                ProductoSeleccionado = nuevoSeleccionado;
+            }
         }
 
         private void CargarDatos()

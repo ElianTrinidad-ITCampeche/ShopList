@@ -59,6 +59,7 @@
                 Grid.Row="1"
                 Grid.Column="2"
                 Text="X"
+                Command="{Binding EliminarShopListItemCommand}"
                 FontSize="Medium"
                 />
         </Grid>
@@ -68,6 +69,7 @@
             Grid.Column="0"
             SelectionMode="Single"
             ItemsSource="{Binding Items}"
+            SelectedItem="{Binding ProductoSeleccionado}"
             EmptyView="Aún no se han registrado productos"
             BackgroundColor="#F0F0F0"
             >
