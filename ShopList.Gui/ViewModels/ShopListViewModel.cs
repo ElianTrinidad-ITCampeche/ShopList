@@ -1,7 +1,9 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ShopList.Gui.Models;
+using ShopList.Gui.Persistence;
 using System.Collections.ObjectModel;
+using System.Threading.Tasks;
 
 namespace ShopList.Gui.ViewModels
 {
@@ -14,12 +16,16 @@ namespace ShopList.Gui.ViewModels
         [ObservableProperty]
         private Item? _productoSeleccionado = null;
 
-        public ObservableCollection<Item> Items { get; }
+        [ObservableProperty]
+        private ObservableCollection<Item>? _items = null;
+        private ShopListDatabase? _dababase = null;
 
         public ShopListViewModel()
         {
+            _dababase = new ShopListDatabase();
             Items = new ObservableCollection<Item>();
-            CargarDatos();
+            GetItems();
+            //CargarDatos();
             if (Items.Count > 0)
             {
                 ProductoSeleccionado = Items.First();
@@ -31,22 +37,24 @@ namespace ShopList.Gui.ViewModels
         }
 
         [RelayCommand]
-        public void AgregarShopListItem()
+        public async void AgregarShopListItem()
         {
             if (string.IsNullOrEmpty(NombreDelArticulo) 
                 || CantidadAComprar <= 0)
             {
                 return;
             }
-            Random generador = new Random();
+            //Random generador = new Random();
             var item = new Item
             {
-                Id = generador.Next(),
+                //Id = generador.Next(),
                 Nombre = NombreDelArticulo,
                 Cantidad = CantidadAComprar,
                 Comprado = false,
             };
-            Items.Add(item);
+            await _dababase.SaveItemAsync(item);
+            //Items.Add(item);
+            GetItems();
             ProductoSeleccionado = item;
             NombreDelArticulo = string.Empty;
             CantidadAComprar = 1;
@@ -79,7 +87,16 @@ namespace ShopList.Gui.ViewModels
                 ProductoSeleccionado = nuevoSeleccionado;
             }
         }
+        private async void GetItems()
+        {
 
+            IEnumerable<Item> itemsFromDb = await _dababase.GetAllItemsAsync();
+            Items = new ObservableCollection<Item>(itemsFromDb);
+            //foreach (Item item in itemsFromDb)
+            //{
+            //    Items.Add(item);
+            //}
+        }
         private void CargarDatos()
         {
             Items.Add(new Item()
